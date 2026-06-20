@@ -1,0 +1,135 @@
+// ==========================================
+// BOOKSMART PLATFORM — AI-DRIVEN DATABASE SCHEMA
+// Optimized for RAG, Personalization & Multi-Agent
+// ==========================================
+
+Project BookSmart {
+  database_type: 'PostgreSQL'
+  Note: 'Nền tảng số hóa, tóm tắt và cá nhân hóa gợi ý sách bằng AI'
+}
+
+// ------------------------------------------
+// 1. NGƯỜI DÙNG & TÂM LÝ (USER & PSYCHOMETRICS)
+// ------------------------------------------
+
+Table users {
+  id uuid [pk, default: `gen_random_uuid()`]
+  email varchar [unique, not null]
+  name varchar [not null]
+  avatar_url varchar
+  
+  // RAG & Personalization Core
+  profile_vector jsonb [note: 'Embedding vector nội tại của user, cập nhật liên tục từ hành vi']
+  psych_scores jsonb [note: 'JSON lưu điểm tâm lý: { openness, conscientiousness, extraversion, agreeableness, neuroticism, mbti }']
+  
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table psych_test_results {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  test_level varchar [not null, note: 'Enum: quick | standard | deep']
+  answers jsonb [not null, note: 'Lưu raw câu trả lời từng câu hỏi để phân tích lại nếu cần']
+  scores jsonb [not null, note: 'Điểm số chi tiết: { big5: {...}, mbti: "INFP", reading_style: "..." }']
+  taken_at timestamp [default: `now()`]
+}
+
+// ------------------------------------------
+// 2. KHO SÁCH & NỘI DUNG VỆ TINH (CORE ENTITIES)
+// ------------------------------------------
+
+Table books {
+  id uuid [pk, default: `gen_random_uuid()`]
+  title varchar [not null]
+  author varchar [not null]
+  isbn varchar [unique]
+  publisher varchar
+  pages integer
+  year integer
+  language varchar [default: 'vi']
+  
+  // Tối ưu query không cần JOIN bảng trung gian
+  genres varchar[]  [note: 'Array chứa thể loại: ["trinh thám", "tâm lý"]']
+  
+  cover_url varchar
+  avg_rating float
+  review_count integer [default: 0]
+  
+  // Nguồn crawl dữ liệu
+  tiki_url varchar
+  fahasa_url varchar
+  goodreads_url varchar
+  
+  scraped_at timestamp
+  created_at timestamp [default: `now()`]
+}
+
+Table reviews {
+  id uuid [pk, default: `gen_random_uuid()`]
+  book_id uuid [not null]
+  source varchar [not null, note: 'Enum: tiki | fahasa | goodreads']
+  source_url varchar
+  reviewer_name varchar
+  content text [not null]
+  sentiment_score float [note: 'Điểm cảm xúc từ -1.0 (Tiêu cực) đến 1.0 (Tích cực)']
+  like_count integer [default: 0]
+  published_at timestamp
+  scraped_at timestamp [default: `now()`]
+}
+
+Table quotes {
+  id uuid [pk, default: `gen_random_uuid()`]
+  book_id uuid [not null]
+  content text [not null]
+  source_url varchar [note: 'Nguồn crawl (Goodreads / Wikiquote)']
+  scraped_at timestamp [default: `now()`]
+}
+
+// ------------------------------------------
+// 3. THEO DÕI HÀNH VI & LUỒNG AI (LOGGING & TRACKING)
+// ------------------------------------------
+
+Table search_sessions {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [note: 'Có thể NULL nếu user chưa đăng nhập (Guest)']
+  raw_query text [not null, note: 'Câu hỏi thô ban đầu của user']
+  parsed_intent jsonb [note: 'JSON kết quả bóc tách của Query Parser Agent: { genres, mood, pages_range, language }']
+  result_book_ids uuid[] [note: 'Mảng chứa ID của Top 5 cuốn sách hệ thống gợi ý']
+  created_at timestamp [default: `now()`]
+}
+
+Table user_interactions {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  book_id uuid [not null]
+  action varchar [not null, note: 'Enum: view_detail | click_buy | save | skip | rate']
+  rating float [note: 'Chỉ có giá trị (1.0 - 5.0) khi action = "rate", ngược lại NULL']
+  metadata jsonb [note: 'Tracking chi tiết: { position_in_list, time_spent_ms, referrer }']
+  created_at timestamp [default: `now()`]
+}
+
+Table research_chats {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  book_id uuid [not null]
+  messages jsonb [not null, note: 'Lưu toàn bộ lịch sử chat làm Memory: [{ role: "user", content: "..." }, { role: "ai", content: "..." }]']
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+// ==========================================
+// ĐỊNH NGHĨA KHÓA NGOẠI (RELATIONSHIPS)
+// ==========================================
+
+Ref book_reviews: reviews.book_id > books.id [delete: cascade]
+Ref book_quotes: quotes.book_id > books.id [delete: cascade]
+
+Ref session_user: search_sessions.user_id > users.id [delete: set null]
+Ref interaction_user: user_interactions.user_id > users.id [delete: cascade]
+Ref interaction_book: user_interactions.book_id > books.id [delete: cascade]
+
+Ref chat_user: research_chats.user_id > users.id [delete: cascade]
+Ref chat_book: research_chats.book_id > books.id [delete: cascade]
+
+Ref test_user: psych_test_results.user_id > users.id [delete: cascade]

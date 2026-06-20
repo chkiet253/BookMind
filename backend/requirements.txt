@@ -1,0 +1,42 @@
+# BookSmart — Python dependencies
+
+# API
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.12
+
+# Database
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+alembic==1.14.0
+
+# Auth
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Validation
+pydantic==2.10.0
+pydantic-settings==2.6.0
+
+# AI / LLM
+langchain==0.3.7
+langchain-openai==0.2.9
+langchain-community==0.3.7
+openai==1.54.0
+
+# Vector DB
+qdrant-client==1.12.0
+
+# Cache
+redis==5.2.0
+
+# Background tasks
+celery==5.4.0
+
+# Scraper
+playwright==1.49.0
+beautifulsoup4==4.12.3
+httpx==0.28.0
+
+# Utilities
+python-dotenv==1.0.1
