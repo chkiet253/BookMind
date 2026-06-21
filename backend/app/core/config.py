@@ -1,11 +1,15 @@
-from pydantic_settings import BaseSettings, SettingConfigDict
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-class Setting(BaseSettings):
-    model_config = SettingConfigDict(
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
         env_file =".env",
         env_file_encoding ="utf-8",
         extra='ignore'
     )
+
+    APP_NAME: str = "BookSmart"
+    APP_VERSION: str = "0.1.0"
+    
     ENVIRONMENT: str = "local"
     
     DATABASE_URL: str
@@ -16,4 +20,4 @@ class Setting(BaseSettings):
     # LLM Config
     LLM_API_KEY: str
 
-settings = Setting()
+settings = Settings()

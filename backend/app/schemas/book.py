@@ -32,3 +32,8 @@ class BookSearchResult(BaseModel):
     book: BookOut
     score: float
     reason: str | None = None   
+
+class BookCreate(BaseModel):
+    title: str
+    author: str
+    pages: int
