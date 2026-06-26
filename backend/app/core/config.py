@@ -7,9 +7,10 @@ class Settings(BaseSettings):
         extra='ignore'
     )
 
-    APP_NAME: str = "BookSmart"
+    APP_NAME: str = "BookMind"
     APP_VERSION: str = "0.1.0"
-    
+    DEBUG: bool = False
+
     ENVIRONMENT: str = "local"
     
     DATABASE_URL: str
@@ -18,6 +19,6 @@ class Settings(BaseSettings):
     QDRANT_COLLECTION_NAME: str = "books_collection"
     
     # LLM Config
-    LLM_API_KEY: str
+    LLM_API_KEY: str | None = None
 
 settings = Settings()

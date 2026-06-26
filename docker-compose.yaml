@@ -1,11 +1,14 @@
 services:
 
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16
+    container_name: bookmind-postgres
     environment:
-      POSTGRES_USER: booksmart
-      POSTGRES_PASSWORD: booksmart
-      POSTGRES_DB: booksmart
+      POSTGRES_USER: bookmind
+      POSTGRES_PASSWORD: bookmind
+      POSTGRES_DB: bookmind
+      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=md5"
     ports:
       - "5432:5432"
     volumes:
@@ -36,7 +39,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://booksmart:booksmart@postgres:5432/booksmart
+      DATABASE_URL: postgresql+asyncpg://booksmart:booksmart@localhost:5432/booksmart
       REDIS_URL: redis://redis:6379/0
       QDRANT_URL: http://qdrant:6333
       OPENAI_API_KEY: ${OPENAI_API_KEY}
@@ -55,7 +58,7 @@ services:
     build: .
     command: celery -A app.worker worker --loglevel=info
     environment:
-      DATABASE_URL: postgresql+asyncpg://booksmart:booksmart@postgres:5432/booksmart
+      DATABASE_URL: postgresql+asyncpg://booksmart:booksmart@localhost:5432/booksmart
       REDIS_URL: redis://redis:6379/0
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     volumes:

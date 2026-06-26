@@ -7,7 +7,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import DeclarativeBase, relationship
 from sqlalchemy.sql import func
-from models.base import Base
+from app.models.base import Base
 
 class Book(Base):
     __tablename__ = "books"
@@ -32,10 +32,10 @@ class Book(Base):
     created_at   = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relations
-    reviews      = relationship("Review", back_populates="book", lazy="dynamic")
-    quotes       = relationship("Quote", back_populates="book", lazy="dynamic")
-    interactions = relationship("UserInteraction", back_populates="book", lazy="dynamic")
-    chats        = relationship("ResearchChat", back_populates="book", lazy="dynamic")
+    # reviews      = relationship("Review", back_populates="book", lazy="dynamic")
+    # quotes       = relationship("Quote", back_populates="book", lazy="dynamic")
+    # interactions = relationship("UserInteraction", back_populates="book", lazy="dynamic")
+    # chats        = relationship("ResearchChat", back_populates="book", lazy="dynamic")
 
     __table_args__ = (
         Index("ix_books_genres", genres, postgresql_using="gin"),

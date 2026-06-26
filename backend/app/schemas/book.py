@@ -2,38 +2,50 @@ import uuid
 from pydantic import BaseModel
 
 
-class BookOut(BaseModel):
-    """Dùng trong search results — chỉ expose những gì frontend cần."""
-    id: uuid.UUID
-    title: str
-    author: str
-    genres: list[str]
-    pages: int | None
-    year: int | None
-    language: str
-    cover_url: str | None
-    avg_rating: float | None
-    review_count: int
+# class BookOut(BaseModel):
+#     """Dùng trong search results — chỉ expose những gì frontend cần."""
+#     id: uuid.UUID
+#     title: str
+#     author: str
+#     genres: list[str]
+#     pages: int | None
+#     year: int | None
+#     language: str
+#     cover_url: str | None
+#     avg_rating: float | None
+#     review_count: int
 
-    model_config = {"from_attributes": True}
-
-
-class BookDetail(BookOut):
-    """Dùng trong book detail page — thêm external links."""
-    isbn: str | None
-    publisher: str | None
-    tiki_url: str | None
-    fahasa_url: str | None
-    goodreads_url: str | None
+#     model_config = {"from_attributes": True} ## Convert SQLAlchemy object → Pydantic
 
 
-class BookSearchResult(BaseModel):
-    """Một item trong search response — kèm match score và lý do gợi ý."""
-    book: BookOut
-    score: float
-    reason: str | None = None   
+# class BookDetail(BookOut):
+#     """Dùng trong book detail page — thêm external links."""
+#     isbn: str | None
+#     publisher: str | None
+#     tiki_url: str | None
+#     fahasa_url: str | None
+#     goodreads_url: str | None
+
+
+# class BookSearchResult(BaseModel):
+#     """Một item trong search response — kèm match score và lý do gợi ý."""
+#     book: BookOut
+#     score: float
+#     reason: str | None = None   
 
 class BookCreate(BaseModel):
     title: str
     author: str
     pages: int
+
+# app/schemas/book.py — sửa lại BookOut cho khớp database thật
+class BookOut(BaseModel):
+    id: uuid.UUID
+    title: str
+    author: str
+    pages: int | None
+    language: str
+    avg_rating: float | None
+    review_count: int
+
+    model_config = {"from_attributes": True}  # bắt buộc để convert SQLAlchemy object → Pydantic
