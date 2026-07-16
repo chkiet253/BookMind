@@ -3,6 +3,7 @@ import operator
 import uuid
 
 class ParsedIntent(TypedDict):
+    """Output of QueryParserAgent -- LLM extract from raw query"""
     genres: list[str]
     mood: str | None
     pages_min: int | None
