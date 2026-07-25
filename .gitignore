@@ -1,19 +1,46 @@
 # Python-generated files
 __pycache__/
-*.py[oc]
+*.py[cod]
+*$py.class
 build/
 dist/
 wheels/
-*.egg-info
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Virtual environments
-.venv
+.venv/
+venv/
+env/
+ENV/
 
 # Node
 node_modules/
 .next/
-.env.local
 dist/
 
-# Docker
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Docker & Logs
 *.log
+logs/
+
+# AI Editor Rules & Tooling Configs
+.agyrules
+.clinerules
+.cursorrules
+.windsurfrules
+.agents/
+.codex/
+rules/
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
