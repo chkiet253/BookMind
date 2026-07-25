@@ -1,0 +1,55 @@
+name: Backend CI
+
+# 1. When is the pipeline working?
+on:
+    push:
+        branches: [ main, feature/* ]
+        paths: 
+            - 'backend/**'
+            - '.github/workflows/**'
+    
+    pull_request:
+        branches: [main]
+
+# 2. Processing jobs
+jobs:
+    test:
+        name: Run Linter & Pytest
+        runs-on: ubuntu-lastet
+
+        defaults:
+            run:
+                working-directory: ./backend
+        
+        steps: 
+            # Download sources from git to local of GitHub Actions
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            # Setup uv
+            - name: Intall uv
+              uses: astral-sh/setup-uv@5
+              with: 
+                enable-cache: true
+            
+            # Setup python version
+            - name: Set up Python
+              uses: actions/setup-python@5
+              with:
+                python-version-file: backend/.python-version
+            
+            # Dependencies
+            - name: Install dependencies
+              run: uv sync --frozen
+
+            # Testing
+            - name: Run code inspection
+              run: |
+                uv run python -m compileall -q
+
+            # Run
+            - name: Run Unit Tests With Pytest
+              env:
+                OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}"
+                DB_URL: "${{ secrets.DB_URL }}"
+              run: uv run pytest
